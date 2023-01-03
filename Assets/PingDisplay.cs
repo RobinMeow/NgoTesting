@@ -5,9 +5,14 @@ using UnityEngine;
 
 public sealed class PingDisplay : NetworkBehaviour
 {
-    TextMeshProUGUI _tmpPing;
-    NetworkVariable<double> _ping = new NetworkVariable<double>();
     [SerializeField] float _refreshRateInSeconds = 1.0f;
+    TextMeshProUGUI _tmpPing;
+    readonly NetworkVariable<double> _ping = new NetworkVariable<double>(
+        default,
+        NetworkVariableReadPermission.Owner,
+        NetworkVariableWritePermission.Server
+        );
+
     float _timePassed = 0.0f;
 
     void Awake()
@@ -18,7 +23,7 @@ public sealed class PingDisplay : NetworkBehaviour
 
     void SetDefaultDisplay()
     {
-        _tmpPing.text = "00 ms (offline)";
+        _tmpPing.text = "00ms (offline)";
     }
 
     void Update()
