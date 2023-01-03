@@ -10,19 +10,16 @@ public sealed class SynchronizeMovement : MovementStrategy
 
     public override void OnNetworkSpawn()
     {
-        _networkPosition.OnValueChanged += SetLocalPosition;
+        _networkPosition.OnValueChanged += SetPositionOnClient;
     }
 
-    /// <summary>
-    /// sets the local position on the current client instance. Real (newPosition) position comes from the Server.
-    /// </summary>
-    void SetLocalPosition(Vector2 previousPosition, Vector2 newPosition)
+    void SetPositionOnClient(Vector2 previousPosition, Vector2 newPosition)
     {
         _transform.position = (Vector3)newPosition;
     }
 
     public override void OnNetworkDespawn()
     {
-        _networkPosition.OnValueChanged -= SetLocalPosition;
+        _networkPosition.OnValueChanged -= SetPositionOnClient;
     }
 }
