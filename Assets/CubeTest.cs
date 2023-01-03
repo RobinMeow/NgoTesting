@@ -1,9 +1,9 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public class CubeTest : NetworkBehaviour
+public sealed class CubeTest : NetworkBehaviour
 {
-    protected readonly NetworkVariable<Vector2> _networkPosition = new NetworkVariable<Vector2>(
+    readonly NetworkVariable<Vector2> _networkPosition = new NetworkVariable<Vector2>(
         Vector2.zero,
         readPerm: NetworkVariableReadPermission.Everyone,
         writePerm: NetworkVariableWritePermission.Owner
@@ -28,6 +28,7 @@ public class CubeTest : NetworkBehaviour
 
     void Update()
     {
+        // would throw exception if executed, before network spawn.
         _movementStrategy.Update();
     }
 
