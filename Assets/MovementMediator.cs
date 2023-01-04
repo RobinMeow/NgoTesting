@@ -1,7 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public sealed class CubeTest : NetworkBehaviour
+public sealed class MovementMediator : NetworkBehaviour
 {
     readonly NetworkVariable<Vector2> _networkPosition = new NetworkVariable<Vector2>(
         Vector2.zero,
@@ -16,13 +16,17 @@ public sealed class CubeTest : NetworkBehaviour
     {
         if (NetworkObject.IsOwner)
         {
-            _movementStrategy = new OwnerAuthoritativeMovement(_networkPosition, transform, _movespeed);
+            _movementStrategy = new OwnerAuthoritativeMovement(
+                _networkPosition, 
+                transform, 
+                _movespeed);
         }
         else
         {
             _movementStrategy = new SynchronizeMovement(_networkPosition, transform);
         }
-
+        
+        
         _movementStrategy.OnNetworkSpawn();
     }
 
