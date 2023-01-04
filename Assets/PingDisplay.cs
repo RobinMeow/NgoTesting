@@ -7,11 +7,11 @@ using UnityEngine.Assertions;
 public sealed class PingDisplay : NetworkBehaviour
 {
     [SerializeField] float _refreshRateInSeconds = 1.0f;
-    [SerializeField] TextMeshProUGUI _tmpPing;
+    [SerializeField] TMP_Text _tmpPing;
     readonly NetworkVariable<double> _ping = new NetworkVariable<double>(
         -1.0f,
-        NetworkVariableReadPermission.Owner,
-        NetworkVariableWritePermission.Server
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server // I could make it ownerWrite, but by using the ServerRpc I can calculate the Ping c:
         );
 
     float _timePassed = 0.0f;
@@ -24,37 +24,59 @@ public sealed class PingDisplay : NetworkBehaviour
 
     void SetDefaultDisplay()
     {
-        _tmpPing.text = "00ms (offline)";
+        _tmpPing.text = "0ms (offline)";
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        if (IsClient)
+        {
+            _ping.OnValueChanged += OnPingChanged;
+        }
     }
 
     void Update()
     {
-        if (IsClient)
+        if (IsOwner)
         {
-            PingServerRpc(DateTime.Now.Ticks); // ToDo: use OnValueChange and refresh UI in there. And use time to send RPCs
-
             _timePassed += Time.deltaTime;
             if (_timePassed > _refreshRateInSeconds)
             {
-                Refresh(_ping.Value);
+                long ticks = DateTime.Now.Ticks;
+                ChangePingServerRpc(ticks);
                 _timePassed = 0.0f;
             }
         }
     }
-
-    [ServerRpc(Delivery = RpcDelivery.Unreliable, RequireOwnership = false)]
-    void PingServerRpc(long ticks)
+    
+    void OnPingChanged(double previousPing, double newPing)
     {
-        _ping.Value = (DateTime.Now - new DateTime(ticks)).TotalMilliseconds;
+        SetText(ping: newPing);
     }
 
-    void Refresh(double ping)
+    [ServerRpc(Delivery = RpcDelivery.Unreliable, RequireOwnership = false)]
+    void ChangePingServerRpc(long ticks)
     {
-        _tmpPing.text = $"{ping:00}ms";
+        double ping = (DateTime.Now - new DateTime(ticks)).TotalMilliseconds;
+        _ping.Value = ping;
+    }
+
+    void SetText(double ping)
+    {
+        _tmpPing.text = $"{ping:0} ms";
+        _tmpPing.color = ping < 40d // ToDo: Use user-defined color gradient
+        ? Color.green 
+        : ping < 100 
+            ? Color.yellow
+            : Color.red;
     }
 
     public override void OnNetworkDespawn()
     {
+        if (IsClient)
+        {
+            _ping.OnValueChanged -= OnPingChanged;
+        }
         SetDefaultDisplay();
     }
 }
