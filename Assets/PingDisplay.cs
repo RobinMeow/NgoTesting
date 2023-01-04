@@ -4,6 +4,10 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Assertions;
 
+// There is a problem currently. Where when the host is having a 0ms ping, it doesnt update, on late joining clients, because the 
+// NetworkVariable.OnValueChanged is only raised, when the value change is high enough. Therefore late joining clients dont recieve the 
+// the host's ping.
+
 public sealed class PingDisplay : NetworkBehaviour
 {
     [SerializeField] float _refreshRateInSeconds = 1.0f;
@@ -19,12 +23,6 @@ public sealed class PingDisplay : NetworkBehaviour
     void Awake()
     {
         Assert.IsNotNull(_tmpPing, $"{nameof(_tmpPing)} may not be null.");
-        SetDefaultDisplay();
-    }
-
-    void SetDefaultDisplay()
-    {
-        _tmpPing.text = "0ms (offline)";
     }
 
     public override void OnNetworkSpawn()
@@ -32,6 +30,7 @@ public sealed class PingDisplay : NetworkBehaviour
         if (IsClient)
         {
             _ping.OnValueChanged += OnPingChanged;
+            SetText(_ping.Value); // OnValueChanged will not be called, if the ms is veeery constant. 
         }
     }
 
@@ -77,6 +76,7 @@ public sealed class PingDisplay : NetworkBehaviour
         {
             _ping.OnValueChanged -= OnPingChanged;
         }
-        SetDefaultDisplay();
+        
+        _tmpPing.text = "offline";
     }
 }
