@@ -301,6 +301,11 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1 &782628375 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 239171410815358274, guid: 63895162da84fe042a035da5e28fa6bc, type: 3}
+  m_PrefabInstance: {fileID: 239171410744612309}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1723583844
 GameObject:
   m_ObjectHideFlags: 0
@@ -338,7 +343,12 @@ MonoBehaviour:
     ProtocolVersion: 0
     NetworkTransport: {fileID: 1723583847}
     PlayerPrefab: {fileID: 4323140069028351359, guid: c91de69a99f603a40a84a00444f4ff21, type: 3}
-    NetworkPrefabs: []
+    NetworkPrefabs:
+    - Override: 0
+      Prefab: {fileID: 782628375}
+      SourcePrefabToOverride: {fileID: 0}
+      SourceHashToOverride: 0
+      OverridingTargetPrefab: {fileID: 0}
     TickRate: 30
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 0
